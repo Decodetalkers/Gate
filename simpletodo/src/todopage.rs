@@ -1,29 +1,93 @@
 //use gtk4::glib;
-use gtk4::prelude::*;
+use gtk4::{prelude::*, Overlay};
+//use std::borrow::Borrow;
 //use once_cell::sync::Lazy;
 use std::cell::RefCell;
 use std::rc::Rc;
 //use std::sync::Mutex;
 use steinsgate::gatewidgets::*;
-//struct Student {
-//    name: String,
-//    age: i32,
-//}
-//impl Student {
-//    fn grow(&mut self) {
-//        self.age += 1;
-//    }
-//    fn messages(&self) -> String {
-//        format!("{} is {} year old", self.name, self.age)
-//    }
-//}
-//static THE_STUDENT: Lazy<Mutex<Student>> = Lazy::new(|| {
-//    Mutex::new(Student {
-//        name: "Mike".to_string(),
-//        age: 0,
-//    })
-//});
-pub fn to_do_row(input: &str) -> Rc<gtk4::Box> {
+
+mod popuppage;
+type Message = Rc<RefCell<(String, bool, i32)>>;
+pub fn todo_page(overlay: Rc<Overlay>) -> Rc<gtk4::Box> {
+    let containermax = GateBox {
+        halign: gtk4::Align::Fill,
+        valign: gtk4::Align::Fill,
+        ..Default::default()
+    }
+    .prebuild()
+    .build();
+    let container = GateBox {
+        halign: gtk4::Align::Fill,
+        valign: gtk4::Align::Fill,
+        margin_end: 15,
+        margin_top: 15,
+        margin_start: 15,
+        margin_bottom: 15,
+        ..Default::default()
+    }
+    .prebuild()
+    .build();
+    let scrolled_window = GateScrolledWindow::default()
+        .prebuild()
+        .child(&container)
+        .build();
+
+    let entry = gtk4::Entry::builder()
+        .margin_top(15)
+        .margin_bottom(15)
+        .margin_start(15)
+        .margin_end(15)
+        .placeholder_text("Enter a Task")
+        .secondary_icon_name("list-add-symbolic")
+        .build();
+    let states: Rc<RefCell<Vec<Message>>> = Rc::new(RefCell::new(Vec::new()));
+    let stateclean = Rc::clone(&states);
+    let containerrc = Rc::new(container);
+    let containerrcclean = containerrc.clone();
+    let overlayclean = overlay.clone();
+    entry.connect_icon_press(move |entry, _icon| {
+        let mut thestate = states.borrow_mut();
+        let text = entry.text().to_string();
+        let astate = Rc::new(RefCell::new((text, false, 0)));
+        thestate.push(Rc::clone(&astate));
+        containerrc.append(&*to_do_row(overlay.clone(), astate));
+    });
+
+    let cleanbutton = GateButton::default()
+        .prebuild()
+        .build()
+        .set_onclick(move |_| {
+            let mut states = stateclean.borrow_mut();
+            let newstates: Vec<Message> = (*states)
+                .iter()
+                .filter(|messages| {
+                    let message = messages.borrow();
+                    let (_, isclicked, _) = *message;
+                    !isclicked
+                })
+                .map(|input| input.clone())
+                .collect();
+
+            loop {
+                match containerrcclean.last_child() {
+                    Some(child) => containerrcclean.remove(&child),
+                    None => break,
+                }
+            }
+            for astate in &newstates {
+                containerrcclean.append(&*to_do_row(overlayclean.clone(), astate.clone()));
+            }
+            *states = newstates;
+        });
+    containermax.append(&cleanbutton);
+    containermax.append(&entry);
+    containermax.append(&scrolled_window);
+    Rc::new(containermax)
+}
+fn to_do_row(overlay: Rc<Overlay>, state: Message) -> Rc<gtk4::Box> {
+    let input2 = state.borrow();
+    let (input, _, time) = input2.clone();
     let thebox = GateBox {
         orientation: gtk4::Orientation::Horizontal,
         valign: gtk4::Align::Start,
@@ -33,37 +97,59 @@ pub fn to_do_row(input: &str) -> Rc<gtk4::Box> {
     .prebuild()
     .build();
     let fontsize = 30111;
-    let check = RefCell::new(false);
-    let time = RefCell::new(0);
+    //let check = RefCell::new(false);
     let labelprew = GateLabel {
         margin_end: 12,
         margin_top: 12,
         margin_start: 12,
         margin_bottom: 12,
-        text: input,
+        text: &input,
         fontsize,
     };
+    drop(input2);
     let lable = labelprew.prebuild().build();
     let recordlabel = GateLabel {
-        text: "0",
+        text: &time.to_string(),
         ..labelprew
     }
     .prebuild()
     .build();
+    let updatelabel = Rc::new(recordlabel);
+    let recordlabel = updatelabel.clone();
+    let time2 = state.clone();
     let check_button = gtk4::CheckButton::builder().build();
+    let popupbutton = GateButton {
+        text: "Popup",
+        margin_start: 15,
+        margin_end: 15,
+        margin_top: 15,
+        margin_bottom: 15,
+    }
+    .prebuild()
+    .build()
+    .set_onclick(move |_| {
+        overlay.add_overlay(&*popuppage::popup_page(
+            time2.clone(),
+            overlay.clone(),
+            updatelabel.clone(),
+            fontsize,
+        ));
+    });
     thebox.append(&check_button);
     thebox.append(&lable);
-    thebox.append(&recordlabel);
+    thebox.append(&*recordlabel);
+    thebox.append(&popupbutton);
     let label = Rc::new(lable);
     let recordlabelrc = Rc::new(recordlabel);
     let input = input.to_string();
     check_button.connect_toggled(move |_| {
-        let mut time = time.borrow_mut();
-        *time += 1;
-        recordlabelrc.set_font_label(&time.to_string(), fontsize);
-        let mut checked = check.borrow_mut();
-        *checked = !*checked;
-        if *checked {
+        let mut change = state.borrow_mut();
+        change.1 = !change.1;
+        change.2 += 1;
+        recordlabelrc.set_font_label(&change.2.to_string(), fontsize);
+        let checked = change.1;
+        //let mut checked = check.borrow_mut();
+        if checked {
             label.set_font_label("done", fontsize);
         } else {
             label.set_font_label(&input, fontsize);
@@ -71,88 +157,3 @@ pub fn to_do_row(input: &str) -> Rc<gtk4::Box> {
     });
     Rc::new(thebox)
 }
-//pub fn to_do_top() -> Rc<gtk4::Box> {
-//    let thebox = GateBox {
-//        spacing: 6,
-//        orientation: gtk4::Orientation::Vertical,
-//        margin_top: 12,
-//        margin_bottom: 12,
-//        margin_start: 12,
-//        margin_end: 12,
-//        ..Default::default()
-//    }
-//    .build();
-//
-//    Rc::new(GateBox::default().build())
-//}
-//pub fn rc_button() -> Rc<gtk4::Button> {
-//    let student = RefCell::new(Student {
-//        name: "cht".to_string(),
-//        age: 0,
-//    });
-//    let message = student.borrow().messages();
-//    let button = GateButton {
-//        text: &message,
-//        ..Default::default()
-//    }
-//    .define(move |button| {
-//        let mut temp = student.borrow_mut();
-//        if temp.age > 100 {
-//            button.set_sensitive(false);
-//            return;
-//        }
-//        //let mut student = THE_STUDENT.lock().unwrap();
-//        temp.grow();
-//        button.set_label(&temp.messages());
-//    });
-//
-//    Rc::new(button)
-//}
-//pub fn rc_button2() -> Rc<gtk4::Button> {
-//    let temp = THE_STUDENT.lock().unwrap();
-//    let button = GateButton {
-//        text: &temp.messages(),
-//        margin_top: 20,
-//        ..Default::default()
-//    }
-//    .define(move |button| {
-//        let mut temp = THE_STUDENT.lock().unwrap();
-//        //let mut student = THE_STUDENT.lock().unwrap();
-//        if temp.age > 100 {
-//            button.set_sensitive(false);
-//            return;
-//        }
-//        temp.grow();
-//        button.set_label(&temp.messages());
-//        drop(temp)
-//    });
-//    //let button = gtk4::Button::builder().label(&temp.messages()).build();
-//    drop(temp);
-//    Rc::new(button)
-//}
-//pub fn rc_labey() -> Rc<gtk4::Label> {
-//    use std::time::Duration;
-//    let temp = THE_STUDENT.lock().unwrap();
-//    let label = GateLabel {
-//        text: &temp.messages(),
-//        fontsize: 11803,
-//        ..Default::default()
-//    }
-//    .build();
-//    //let label = gtk4::Label::builder().label(&temp.messages()).build();
-//    drop(temp);
-//    let sample = Rc::new(label);
-//    let output = Rc::clone(&sample);
-//    let tick = move || {
-//        let temp = THE_STUDENT.lock().unwrap();
-//        if temp.age > 100 {
-//            sample.set_font_label("You dead", 101803);
-//            return glib::Continue(false);
-//        }
-//        sample.set_font_label(&temp.messages(), 11803);
-//        drop(temp);
-//        glib::Continue(true)
-//    };
-//    glib::timeout_add_local(Duration::from_millis(1), tick);
-//    output
-//}

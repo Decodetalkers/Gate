@@ -1,4 +1,5 @@
 use super::GateWidget;
+use super::HasLabel;
 use gtk4::{builders::LabelBuilder, Label};
 pub struct GateLabel<'a> {
     pub fontsize: i32,
@@ -43,5 +44,10 @@ impl FontResize for Label {
             self.set_use_markup(true);
         };
         self.set_label(&format!("<span size='{}'>{}</span>", size, input));
+    }
+}
+impl HasLabel for Label {
+    fn set_the_label(&self, input: &str, size: i32) {
+        self.set_font_label(input, size);
     }
 }

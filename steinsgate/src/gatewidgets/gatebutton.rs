@@ -1,4 +1,5 @@
 use super::GateWidget;
+use super::HasLabel;
 use gtk4::builders::ButtonBuilder;
 use gtk4::prelude::*;
 use gtk4::Button;
@@ -30,19 +31,22 @@ impl<'a> GateWidget<ButtonBuilder> for GateButton<'a> {
             .label(self.text)
     }
 }
-impl<'a> GateButton<'a> {
-    pub fn define<T>(&self, onclick: T) -> Button
+pub trait OnClick {
+    fn set_onclick<T>(self, onclick: T) -> Self
+    where
+        T: Fn(&Button) + 'static;
+}
+impl<'a> OnClick for Button {
+    fn set_onclick<T>(self, onclick: T) -> Self
     where
         T: Fn(&Button) + 'static,
     {
-        let button = Button::builder()
-            .label(self.text)
-            .margin_start(self.margin_start)
-            .margin_end(self.margin_end)
-            .margin_top(self.margin_top)
-            .margin_end(self.margin_end)
-            .build();
-        button.connect_clicked(onclick);
-        button
+        self.connect_clicked(onclick);
+        self
+    }
+}
+impl HasLabel for Button {
+    fn set_the_label(&self, input: &str, _size: i32) {
+        self.set_label(input);
     }
 }
