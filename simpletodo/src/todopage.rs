@@ -18,7 +18,7 @@ pub fn todo_page(overlay: Rc<Overlay>) -> Rc<gtk4::Box> {
     .prebuild()
     .build();
     let basebox = GateBox {
-        halign: gtk4::Align::Fill,
+        halign: gtk4::Align::Baseline,
         valign: gtk4::Align::Fill,
         margin_end: 15,
         margin_top: 15,

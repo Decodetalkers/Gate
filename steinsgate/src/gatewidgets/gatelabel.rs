@@ -12,7 +12,7 @@ pub struct GateLabel<'a> {
 impl<'a> Default for GateLabel<'a> {
     fn default() -> Self {
         GateLabel {
-            fontsize: 10,
+            fontsize: 10000,
             text: "Hack to the gate",
             margin_start: 0,
             margin_end: 0,
