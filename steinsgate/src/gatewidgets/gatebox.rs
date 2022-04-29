@@ -1,4 +1,5 @@
 use super::GateWidget;
+use gtk4::builders::BoxBuilder;
 use gtk4::Align;
 use gtk4::Box;
 use gtk4::Orientation;
@@ -26,8 +27,8 @@ impl Default for GateBox {
         }
     }
 }
-impl GateWidget<Box> for GateBox {
-    fn build(&self) -> Box {
+impl GateWidget<BoxBuilder> for GateBox {
+    fn prebuild(&self) -> BoxBuilder {
         Box::builder()
             .orientation(self.orientation)
             .halign(self.halign)
@@ -37,6 +38,5 @@ impl GateWidget<Box> for GateBox {
             .margin_start(self.margin_start)
             .margin_end(self.margin_end)
             .spacing(self.spacing)
-            .build()
     }
 }

@@ -1,27 +1,27 @@
 use super::GateWidget;
-use gtk4::Label;
+use gtk4::{builders::LabelBuilder, Label};
 pub struct GateLabel<'a> {
-    pub fontsize: usize,
+    pub fontsize: i32,
     pub text: &'a str,
     pub margin_start: i32,
-    pub margin_end :i32,
-    pub margin_top : i32,
-    pub margin_bottom:i32,
+    pub margin_end: i32,
+    pub margin_top: i32,
+    pub margin_bottom: i32,
 }
 impl<'a> Default for GateLabel<'a> {
     fn default() -> Self {
         GateLabel {
             fontsize: 10,
             text: "Hack to the gate",
-            margin_start:0,
-            margin_end:0,
-            margin_top:0,
-            margin_bottom:0,
+            margin_start: 0,
+            margin_end: 0,
+            margin_top: 0,
+            margin_bottom: 0,
         }
     }
 }
-impl<'a> GateWidget<Label> for GateLabel<'a> {
-    fn build(&self) -> Label {
+impl<'a> GateWidget<LabelBuilder> for GateLabel<'a> {
+    fn prebuild(&self) -> LabelBuilder {
         Label::builder()
             .use_markup(true)
             .margin_start(self.margin_start)
@@ -32,17 +32,16 @@ impl<'a> GateWidget<Label> for GateLabel<'a> {
                 "<span size='{}'>{}</span>",
                 self.fontsize, self.text
             ))
-            .build()
     }
 }
 pub trait FontResize {
-    fn set_font_label(&self, input :&str,size:i32);
+    fn set_font_label(&self, input: &str, size: i32);
 }
 impl FontResize for Label {
-    fn set_font_label(&self, input: &str,size:i32) {
+    fn set_font_label(&self, input: &str, size: i32) {
         if !self.uses_markup() {
             self.set_use_markup(true);
         };
-        self.set_label(&format!("<span size='{}'>{}</span>",size,input));
+        self.set_label(&format!("<span size='{}'>{}</span>", size, input));
     }
 }

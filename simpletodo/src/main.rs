@@ -2,8 +2,8 @@ use gtk::prelude::*;
 use gtk::{Application, ApplicationWindow};
 use gtk4 as gtk;
 //use gtk::subclass::*;
-mod mybutton;
-use steinsgate::gatewidgets::{GateBox, GateWidget};
+mod todopage;
+use steinsgate::gatewidgets::{GateBox, GateScrolledWindow, GateWidget};
 fn main() {
     let app = Application::builder()
         .application_id("org.example.HelloWorld")
@@ -20,13 +20,14 @@ fn build_ui(app: &Application) {
         .default_height(200)
         .title("Hello, World!")
         .build();
-    let containermax = GateBox{
+    let containermax = GateBox {
         halign: gtk::Align::Fill,
         valign: gtk::Align::Fill,
         ..Default::default()
-    }.build();
-
-    let container = GateBox{
+    }
+    .prebuild()
+    .build();
+    let container = GateBox {
         halign: gtk::Align::Fill,
         valign: gtk::Align::Fill,
         margin_end: 15,
@@ -34,14 +35,14 @@ fn build_ui(app: &Application) {
         margin_start: 15,
         margin_bottom: 15,
         ..Default::default()
-    }.build();
-    let scrolled_window = gtk::ScrolledWindow::builder()
-        .hscrollbar_policy(gtk::PolicyType::Never)
-        .min_content_width(360)
-        .valign(gtk::Align::Fill)
-        .vexpand(true)
+    }
+    .prebuild()
+    .build();
+    let scrolled_window = GateScrolledWindow::default()
+        .prebuild()
         .child(&container)
         .build();
+
     let entry = gtk::Entry::builder()
         .margin_top(15)
         .margin_bottom(15)
@@ -51,8 +52,8 @@ fn build_ui(app: &Application) {
         .secondary_icon_name("list-add-symbolic")
         .build();
     let containerrc = std::rc::Rc::new(container);
-    entry.connect_icon_press(move |entry,_icon| {
-        containerrc.append(&*mybutton::to_do_row(&entry.text().to_string()));
+    entry.connect_icon_press(move |entry, _icon| {
+        containerrc.append(&*todopage::to_do_row(&entry.text().to_string()));
     });
     containermax.append(&entry);
     containermax.append(&scrolled_window);

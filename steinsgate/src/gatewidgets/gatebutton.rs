@@ -1,4 +1,5 @@
 use super::GateWidget;
+use gtk4::builders::ButtonBuilder;
 use gtk4::prelude::*;
 use gtk4::Button;
 pub struct GateButton<'a> {
@@ -19,21 +20,20 @@ impl<'a> Default for GateButton<'a> {
         }
     }
 }
-impl<'a> GateWidget<Button> for GateButton<'a> {
-    fn build(&self) -> Button {
+impl<'a> GateWidget<ButtonBuilder> for GateButton<'a> {
+    fn prebuild(&self) -> ButtonBuilder {
         Button::builder()
             .margin_start(self.margin_start)
             .margin_end(self.margin_end)
             .margin_top(self.margin_top)
             .margin_end(self.margin_end)
             .label(self.text)
-            .build()
     }
 }
 impl<'a> GateButton<'a> {
     pub fn define<T>(&self, onclick: T) -> Button
     where
-        T: Fn(&Button) -> () + 'static,
+        T: Fn(&Button) + 'static,
     {
         let button = Button::builder()
             .label(self.text)

@@ -26,34 +26,47 @@ use steinsgate::gatewidgets::*;
 pub fn to_do_row(input: &str) -> Rc<gtk4::Box> {
     let thebox = GateBox {
         orientation: gtk4::Orientation::Horizontal,
-        valign:gtk4::Align::Start,
-        halign:gtk4::Align::Start,
+        valign: gtk4::Align::Start,
+        halign: gtk4::Align::Start,
         ..Default::default()
     }
+    .prebuild()
     .build();
+    let fontsize = 30111;
     let check = RefCell::new(false);
-    let lable = GateLabel {
+    let time = RefCell::new(0);
+    let labelprew = GateLabel {
         margin_end: 12,
         margin_top: 12,
         margin_start: 12,
         margin_bottom: 12,
         text: input,
-        fontsize: 30111,
-        ..Default::default()
+        fontsize,
+    };
+    let lable = labelprew.prebuild().build();
+    let recordlabel = GateLabel {
+        text: "0",
+        ..labelprew
     }
+    .prebuild()
     .build();
     let check_button = gtk4::CheckButton::builder().build();
     thebox.append(&check_button);
     thebox.append(&lable);
+    thebox.append(&recordlabel);
     let label = Rc::new(lable);
+    let recordlabelrc = Rc::new(recordlabel);
     let input = input.to_string();
     check_button.connect_toggled(move |_| {
+        let mut time = time.borrow_mut();
+        *time += 1;
+        recordlabelrc.set_font_label(&time.to_string(), fontsize);
         let mut checked = check.borrow_mut();
         *checked = !*checked;
         if *checked {
-            label.set_font_label("done", 30111);
+            label.set_font_label("done", fontsize);
         } else {
-            label.set_font_label(&input,30111);
+            label.set_font_label(&input, fontsize);
         }
     });
     Rc::new(thebox)
