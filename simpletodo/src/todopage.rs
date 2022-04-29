@@ -17,7 +17,7 @@ pub fn todo_page(overlay: Rc<Overlay>) -> Rc<gtk4::Box> {
     }
     .prebuild()
     .build();
-    let container = GateBox {
+    let basebox = GateBox {
         halign: gtk4::Align::Fill,
         valign: gtk4::Align::Fill,
         margin_end: 15,
@@ -25,9 +25,15 @@ pub fn todo_page(overlay: Rc<Overlay>) -> Rc<gtk4::Box> {
         margin_start: 15,
         margin_bottom: 15,
         ..Default::default()
+    };
+    let topcontainer = GateBox {
+        orientation: gtk4::Orientation::Horizontal,
+        ..basebox
     }
     .prebuild()
+    .hexpand(true)
     .build();
+    let container = basebox.prebuild().build();
     let scrolled_window = GateScrolledWindow::default()
         .prebuild()
         .child(&container)
@@ -38,6 +44,7 @@ pub fn todo_page(overlay: Rc<Overlay>) -> Rc<gtk4::Box> {
         .margin_bottom(15)
         .margin_start(15)
         .margin_end(15)
+        .hexpand(true)
         .placeholder_text("Enter a Task")
         .secondary_icon_name("list-add-symbolic")
         .build();
@@ -80,8 +87,11 @@ pub fn todo_page(overlay: Rc<Overlay>) -> Rc<gtk4::Box> {
             }
             *states = newstates;
         });
-    containermax.append(&cleanbutton);
-    containermax.append(&entry);
+    topcontainer.append(&entry);
+    topcontainer.append(&cleanbutton);
+    //containermax.append(&cleanbutton);
+    //containermax.append(&entry);
+    containermax.append(&topcontainer);
     containermax.append(&scrolled_window);
     Rc::new(containermax)
 }
