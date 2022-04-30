@@ -61,7 +61,7 @@ where
     .prebuild()
     .build()
     .set_onclick(move |_| {
-        overlay.set_page(0);
+        //overlay.set_page(0);
         overlay.pushback();
     });
     window.append(&button);
