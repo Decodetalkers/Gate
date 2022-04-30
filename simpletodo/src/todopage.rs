@@ -73,14 +73,12 @@ pub fn todo_page(overlay: Rc<GatePopWindow>) -> Rc<gtk4::Box> {
                     let (_, isclicked, _) = *message;
                     !isclicked
                 })
-                .map(|input| input.clone())
+                .cloned()
                 .collect();
 
-            loop {
-                match containerrcclean.last_child() {
-                    Some(child) => containerrcclean.remove(&child),
-                    None => break,
-                }
+            while let Some(child) = containerrcclean.last_child() {
+                containerrcclean.remove(&child);
+                // None => break,
             }
             for astate in &newstates {
                 containerrcclean.append(&*to_do_row(overlayclean.clone(), astate.clone()));

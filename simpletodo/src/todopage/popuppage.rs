@@ -51,7 +51,6 @@ where
         updatelabel.set_the_label(&text.2.to_string(), font);
     });
     let window = Rc::new(window);
-    let output = window.clone();
     let button2 = GateButtonPattern {
         text: "Return",
         margin_bottom: 15,
@@ -65,8 +64,8 @@ where
         overlay.set_page(0);
         overlay.pushback();
     });
-    output.append(&button);
-    output.append(&button2);
+    window.append(&button);
+    window.append(&button2);
 
-    output
+    window
 }
