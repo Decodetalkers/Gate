@@ -154,7 +154,7 @@ fn to_do_row(overlay: Rc<GatePopWindow>, state: Message) -> Rc<gtk4::Box> {
     check_button.connect_toggled(move |_| {
         let mut change = state.borrow_mut();
         change.1 = !change.1;
-        change.2 += 1;
+        //change.2 += 1;
         recordlabelrc.set_font_label(&change.2.to_string(), fontsize);
         let checked = change.1;
         //let mut checked = check.borrow_mut();

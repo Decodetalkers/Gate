@@ -10,7 +10,12 @@ pub fn videopage<W>(window: Rc<W>) -> Rc<gtk::Box>
 where
     W: IsA<gtk::Window>,
 {
-    let myvideo = Video::builder().autoplay(true).loop_(false).build();
+    let myvideo = Video::builder()
+        .autoplay(true)
+        .loop_(false)
+        .vexpand(true)
+        .hexpand(true)
+        .build();
     let myvideo = Rc::new(myvideo);
     let videoselectrc = myvideo.clone();
     let filechooser = gtk::FileChooserNative::builder()
