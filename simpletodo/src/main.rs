@@ -27,7 +27,8 @@ fn build_ui(app: &Application) {
     let window = Rc::new(window);
     let window_trans = window.clone();
     let notebook = gtk::Notebook::builder().build();
-    let overlay = gtk::Overlay::builder().build();
+    let overlay = gtk::Notebook::builder().build();
+    //let overlay = gtk::Overlay::builder().build();
     let videoshow = videopage::videopage(window_trans);
     notebook.append_page(
         &overlay,
@@ -54,8 +55,12 @@ fn build_ui(app: &Application) {
     window.set_child(Some(&notebook));
     let overlayrc = Rc::new(overlay);
     let overlayrc1 = overlayrc.clone();
+    overlayrc.set_show_tabs(false);
     //let overlayrc2 = overlayrc.clone();
-    overlayrc.add_overlay(&*todopage::todo_page(overlayrc1));
+    overlayrc.append_page(
+        &*todopage::todo_page(overlayrc1),
+        Some(&GateLabel::default().prebuild().build()),
+    );
 
     // Show the window.
     window.show();

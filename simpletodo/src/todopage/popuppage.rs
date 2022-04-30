@@ -1,12 +1,12 @@
 use std::rc::Rc;
 
 use super::Message;
-use gtk::{prelude::*, Overlay};
+use gtk::{prelude::*, Notebook};
 use gtk4 as gtk;
 use steinsgate::gatewidgets::*;
 pub(super) fn popup_page<T>(
     input: Message,
-    overlay: Rc<Overlay>,
+    overlay: Rc<Notebook>,
     updatelabel: Rc<T>,
     font: i32,
 ) -> Rc<gtk::Box>
@@ -61,7 +61,8 @@ where
     .prebuild()
     .build()
     .set_onclick(move |_| {
-        overlay.remove_overlay(&*window);
+        overlay.set_page(0);
+        overlay.remove_page(Some(1));
     });
     output.append(&button);
     output.append(&button2);

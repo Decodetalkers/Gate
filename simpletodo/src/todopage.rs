@@ -1,5 +1,5 @@
 //use gtk4::glib;
-use gtk4::{prelude::*, Overlay};
+use gtk4::{prelude::*, Notebook};
 //use std::borrow::Borrow;
 //use once_cell::sync::Lazy;
 use std::cell::RefCell;
@@ -9,7 +9,7 @@ use steinsgate::gatewidgets::*;
 
 mod popuppage;
 type Message = Rc<RefCell<(String, bool, i32)>>;
-pub fn todo_page(overlay: Rc<Overlay>) -> Rc<gtk4::Box> {
+pub fn todo_page(overlay: Rc<Notebook>) -> Rc<gtk4::Box> {
     let containermax = GateBox {
         halign: gtk4::Align::Fill,
         valign: gtk4::Align::Fill,
@@ -95,7 +95,7 @@ pub fn todo_page(overlay: Rc<Overlay>) -> Rc<gtk4::Box> {
     containermax.append(&scrolled_window);
     Rc::new(containermax)
 }
-fn to_do_row(overlay: Rc<Overlay>, state: Message) -> Rc<gtk4::Box> {
+fn to_do_row(overlay: Rc<Notebook>, state: Message) -> Rc<gtk4::Box> {
     let input2 = state.borrow();
     let (input, _, time) = input2.clone();
     let thebox = GateBox {
@@ -138,12 +138,16 @@ fn to_do_row(overlay: Rc<Overlay>, state: Message) -> Rc<gtk4::Box> {
     .prebuild()
     .build()
     .set_onclick(move |_| {
-        overlay.add_overlay(&*popuppage::popup_page(
-            time2.clone(),
-            overlay.clone(),
-            updatelabel.clone(),
-            fontsize,
-        ));
+        overlay.append_page(
+            &*popuppage::popup_page(
+                time2.clone(),
+                overlay.clone(),
+                updatelabel.clone(),
+                fontsize,
+            ),
+            Some(&GateLabel::default().prebuild().build()),
+        );
+        overlay.set_page(1);
     });
     thebox.append(&check_button);
     thebox.append(&lable);
