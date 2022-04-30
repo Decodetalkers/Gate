@@ -24,21 +24,33 @@ fn build_ui(app: &Application) {
         .default_height(200)
         .title("Hack to the Gate!!")
         .build();
+    let window = Rc::new(window);
+    let window_trans = window.clone();
     let notebook = gtk::Notebook::builder().build();
     let overlay = gtk::Overlay::builder().build();
-    let videoshow = videopage::videopage();
-    notebook.append_page(&overlay, Some(&GateLabel {
-        text:"Home",
-        ..Default::default()
-    }
-    .prebuild()
-    .build()));
-    notebook.append_page(&*videoshow, Some(&GateLabel {
-        text:"Video",
-        ..Default::default()
-    }
-    .prebuild()
-    .build()));
+    let videoshow = videopage::videopage(window_trans);
+    notebook.append_page(
+        &overlay,
+        Some(
+            &GateLabel {
+                text: "Home",
+                ..Default::default()
+            }
+            .prebuild()
+            .build(),
+        ),
+    );
+    notebook.append_page(
+        &*videoshow,
+        Some(
+            &GateLabel {
+                text: "Video",
+                ..Default::default()
+            }
+            .prebuild()
+            .build(),
+        ),
+    );
     window.set_child(Some(&notebook));
     let overlayrc = Rc::new(overlay);
     let overlayrc1 = overlayrc.clone();
