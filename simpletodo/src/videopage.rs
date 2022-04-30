@@ -6,9 +6,10 @@ use gtk::Video;
 use gtk4 as gtk;
 //use gtk::Label;
 use steinsgate::gatewidgetpatterns::*;
-pub fn videopage<W>(window: Rc<W>) -> Rc<gtk::Box>
+pub fn videopage<W, F>(window: Rc<W>, fullscreen: F) -> Rc<gtk::Box>
 where
     W: IsA<gtk::Window>,
+    F: Fn(Rc<Video>, Rc<gtk4::Box>) + 'static,
 {
     let myvideo = Video::builder()
         .autoplay(true)
@@ -18,6 +19,7 @@ where
         .build();
     let myvideo = Rc::new(myvideo);
     let videoselectrc = myvideo.clone();
+    let videofullscreen = myvideo.clone();
     let filechooser = gtk::FileChooserNative::builder()
         .title("Open file")
         .action(gtk::FileChooserAction::Open)
@@ -58,6 +60,30 @@ where
         });
         filechooser.show();
     });
+    let contailer = Rc::new(
+        GateBoxPattern {
+            halign: gtk4::Align::Fill,
+            valign: gtk4::Align::Fill,
+            margin_end: 15,
+            margin_top: 15,
+            margin_start: 15,
+            margin_bottom: 15,
+            ..Default::default()
+        }
+        .prebuild()
+        .build(),
+    );
+    let contailerbak = contailer.clone();
+    let fullscreenbutton = GateButtonPattern {
+        text: "fullscreen",
+        ..Default::default()
+    }
+    .prebuild()
+    .build()
+    .set_onclick(move |_| {
+        contailerbak.remove(&*videofullscreen);
+        fullscreen(videofullscreen.clone(), contailerbak.clone());
+    });
     let topbar = GateBoxPattern {
         orientation: gtk::Orientation::Horizontal,
         margin_bottom: 15,
@@ -67,18 +93,10 @@ where
     .build();
     topbar.append(&toplabel);
     topbar.append(&filebutton);
-    let contailer = GateBoxPattern {
-        halign: gtk4::Align::Fill,
-        valign: gtk4::Align::Fill,
-        margin_end: 15,
-        margin_top: 15,
-        margin_start: 15,
-        margin_bottom: 15,
-        ..Default::default()
-    }
-    .prebuild()
-    .build();
+    topbar.append(&fullscreenbutton);
+
     contailer.append(&topbar);
     contailer.append(&*myvideo);
-    Rc::new(contailer)
+    contailer.set_focus_child(Some(&*myvideo));
+    contailer
 }

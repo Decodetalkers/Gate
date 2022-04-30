@@ -1,9 +1,9 @@
 //use std::cell::RefCell;
-use std::rc::Rc;
-
+use gtk::glib;
 use gtk::prelude::*;
 use gtk::{Application, ApplicationWindow};
 use gtk4 as gtk;
+use std::rc::Rc;
 use steinsgate::gatewidgetpatterns::{GateLabelPattern, GatePopWindowPattern, GateWidgetPattern};
 use steinsgate::gatewidgets::GatePopWindow;
 //use gtk::subclass::*;
@@ -25,12 +25,26 @@ fn build_ui(app: &Application) {
         .default_height(200)
         .title("Hack to the Gate!!")
         .build();
+
     let window = Rc::new(window);
     let window_trans = window.clone();
     let notebook = gtk::Notebook::builder().build();
     let overlay: GatePopWindow = GatePopWindowPattern::default().prebuild().build();
+    let showfullscreen = glib::clone!(@weak app => move |input: Rc<gtk4::Video>,origin: Rc<gtk::Box>| {
+        let window = ApplicationWindow::builder()
+            .fullscreened(true)
+            .build();
+        input.set_parent(&window);
+        window.set_child(Some(&*input));
+        app.add_window(&window);
+        window.connect_destroy(move |_|{
+            origin.append(&*input);
+            origin.set_focus_child(Some(&*input));
+        });
+        window.show();
+    });
     //let overlay = gtk::Overlay::builder().build();
-    let videoshow = videopage::videopage(window_trans);
+    let videoshow = videopage::videopage(window_trans, showfullscreen);
     notebook.append_page(
         &overlay,
         Some(
@@ -53,6 +67,7 @@ fn build_ui(app: &Application) {
             .build(),
         ),
     );
+
     window.set_child(Some(&notebook));
     let overlayrc = Rc::new(overlay);
     let overlayrc1 = overlayrc.clone();
