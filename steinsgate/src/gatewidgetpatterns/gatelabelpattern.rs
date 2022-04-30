@@ -1,7 +1,7 @@
-use super::GateWidget;
+use super::GateWidgetPattern;
 use super::HasLabel;
 use gtk4::{builders::LabelBuilder, Label};
-pub struct GateLabel<'a> {
+pub struct GateLabelPattern<'a> {
     pub fontsize: i32,
     pub text: &'a str,
     pub margin_start: i32,
@@ -9,9 +9,9 @@ pub struct GateLabel<'a> {
     pub margin_top: i32,
     pub margin_bottom: i32,
 }
-impl<'a> Default for GateLabel<'a> {
+impl<'a> Default for GateLabelPattern<'a> {
     fn default() -> Self {
-        GateLabel {
+        GateLabelPattern {
             fontsize: 10000,
             text: "Hack to the gate",
             margin_start: 0,
@@ -21,7 +21,7 @@ impl<'a> Default for GateLabel<'a> {
         }
     }
 }
-impl<'a> GateWidget<LabelBuilder> for GateLabel<'a> {
+impl<'a> GateWidgetPattern<LabelBuilder> for GateLabelPattern<'a> {
     fn prebuild(&self) -> LabelBuilder {
         Label::builder()
             .use_markup(true)

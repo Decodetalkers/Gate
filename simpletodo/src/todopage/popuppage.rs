@@ -1,12 +1,13 @@
 use std::rc::Rc;
 
 use super::Message;
-use gtk::{prelude::*, Notebook};
+use gtk::prelude::*;
 use gtk4 as gtk;
+use steinsgate::gatewidgetpatterns::*;
 use steinsgate::gatewidgets::*;
 pub(super) fn popup_page<T>(
     input: Message,
-    overlay: Rc<Notebook>,
+    overlay: Rc<GatePopWindow>,
     updatelabel: Rc<T>,
     font: i32,
 ) -> Rc<gtk::Box>
@@ -15,7 +16,7 @@ where
 {
     let number = input.borrow();
     let fontsize = 30111;
-    let window = GateBox {
+    let window = GateBoxPattern {
         margin_end: 15,
         margin_top: 15,
         margin_start: 15,
@@ -24,7 +25,7 @@ where
     }
     .prebuild()
     .build();
-    let label = GateLabel {
+    let label = GateLabelPattern {
         text: &number.2.to_string(),
         fontsize,
         ..Default::default()
@@ -34,7 +35,7 @@ where
     drop(number);
     window.append(&label);
     let rclabel = Rc::new(label);
-    let button = GateButton {
+    let button = GateButtonPattern {
         text: "Click it",
         margin_bottom: 15,
         margin_top: 15,
@@ -51,7 +52,7 @@ where
     });
     let window = Rc::new(window);
     let output = window.clone();
-    let button2 = GateButton {
+    let button2 = GateButtonPattern {
         text: "Return",
         margin_bottom: 15,
         margin_top: 15,
@@ -62,7 +63,7 @@ where
     .build()
     .set_onclick(move |_| {
         overlay.set_page(0);
-        overlay.remove_page(Some(1));
+        overlay.pushback();
     });
     output.append(&button);
     output.append(&button2);

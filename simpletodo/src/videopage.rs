@@ -5,7 +5,7 @@ use gtk::Video;
 //use gtk::Box;
 use gtk4 as gtk;
 //use gtk::Label;
-use steinsgate::gatewidgets::*;
+use steinsgate::gatewidgetpatterns::*;
 pub fn videopage<W>(window: Rc<W>) -> Rc<gtk::Box>
 where
     W: IsA<gtk::Window>,
@@ -30,13 +30,13 @@ where
         audio_filter.set_name(Some("Audio"));
         filechooser.add_filter(&audio_filter);
     }
-    let toplabel = GateLabel {
+    let toplabel = GateLabelPattern {
         text: "select video",
         ..Default::default()
     }
     .prebuild()
     .build();
-    let filebutton = GateButton {
+    let filebutton = GateButtonPattern {
         text: "select",
         ..Default::default()
     }
@@ -53,7 +53,7 @@ where
         });
         filechooser.show();
     });
-    let topbar = GateBox {
+    let topbar = GateBoxPattern {
         orientation: gtk::Orientation::Horizontal,
         margin_bottom: 15,
         ..Default::default()
@@ -62,7 +62,7 @@ where
     .build();
     topbar.append(&toplabel);
     topbar.append(&filebutton);
-    let contailer = GateBox {
+    let contailer = GateBoxPattern {
         halign: gtk4::Align::Fill,
         valign: gtk4::Align::Fill,
         margin_end: 15,

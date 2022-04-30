@@ -1,14 +1,9 @@
-mod gatebox;
-mod gatebutton;
-mod gatelabel;
-mod gatescrolledwindow;
-pub use gatebox::GateBox;
-pub use gatebutton::*;
-pub use gatelabel::*;
-pub use gatescrolledwindow::GateScrolledWindow;
-pub trait GateWidget<T> {
-    fn prebuild(&self) -> T;
-}
-pub trait HasLabel {
-    fn set_the_label(&self, input: &str, size: i32);
+mod gatepopwindow;
+use gtk4::{prelude::IsA, Notebook, Widget};
+pub type GatePopWindow = Notebook;
+pub trait PopUpWindow {
+    fn popup<T>(&self, child: &T)
+    where
+        T: IsA<Widget>;
+    fn pushback(&self);
 }

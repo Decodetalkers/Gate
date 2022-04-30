@@ -1,9 +1,9 @@
-use super::GateWidget;
+use super::GateWidgetPattern;
 use gtk4::builders::BoxBuilder;
 use gtk4::Align;
 use gtk4::Box;
 use gtk4::Orientation;
-pub struct GateBox {
+pub struct GateBoxPattern {
     pub orientation: Orientation,
     pub halign: Align,
     pub valign: Align,
@@ -13,9 +13,9 @@ pub struct GateBox {
     pub margin_bottom: i32,
     pub spacing: i32,
 }
-impl Default for GateBox {
+impl Default for GateBoxPattern {
     fn default() -> Self {
-        GateBox {
+        GateBoxPattern {
             orientation: Orientation::Vertical,
             halign: Align::Center,
             valign: Align::Center,
@@ -27,7 +27,7 @@ impl Default for GateBox {
         }
     }
 }
-impl GateWidget<BoxBuilder> for GateBox {
+impl GateWidgetPattern<BoxBuilder> for GateBoxPattern {
     fn prebuild(&self) -> BoxBuilder {
         Box::builder()
             .orientation(self.orientation)

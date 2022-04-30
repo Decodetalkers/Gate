@@ -4,7 +4,8 @@ use std::rc::Rc;
 use gtk::prelude::*;
 use gtk::{Application, ApplicationWindow};
 use gtk4 as gtk;
-use steinsgate::gatewidgets::{GateLabel, GateWidget};
+use steinsgate::gatewidgetpatterns::{GateLabelPattern, GatePopWindowPattern, GateWidgetPattern};
+use steinsgate::gatewidgets::GatePopWindow;
 //use gtk::subclass::*;
 mod todopage;
 mod videopage;
@@ -27,13 +28,13 @@ fn build_ui(app: &Application) {
     let window = Rc::new(window);
     let window_trans = window.clone();
     let notebook = gtk::Notebook::builder().build();
-    let overlay = gtk::Notebook::builder().build();
+    let overlay: GatePopWindow = GatePopWindowPattern::default().prebuild().build();
     //let overlay = gtk::Overlay::builder().build();
     let videoshow = videopage::videopage(window_trans);
     notebook.append_page(
         &overlay,
         Some(
-            &GateLabel {
+            &GateLabelPattern {
                 text: "Home",
                 ..Default::default()
             }
@@ -44,7 +45,7 @@ fn build_ui(app: &Application) {
     notebook.append_page(
         &*videoshow,
         Some(
-            &GateLabel {
+            &GateLabelPattern {
                 text: "Video",
                 ..Default::default()
             }
@@ -55,11 +56,12 @@ fn build_ui(app: &Application) {
     window.set_child(Some(&notebook));
     let overlayrc = Rc::new(overlay);
     let overlayrc1 = overlayrc.clone();
-    overlayrc.set_show_tabs(false);
+    //overlayrc.set_show_tabs(false);
+
     //let overlayrc2 = overlayrc.clone();
     overlayrc.append_page(
         &*todopage::todo_page(overlayrc1),
-        Some(&GateLabel::default().prebuild().build()),
+        Some(&GateLabelPattern::default().prebuild().build()),
     );
 
     // Show the window.

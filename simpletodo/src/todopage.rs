@@ -1,23 +1,23 @@
 //use gtk4::glib;
-use gtk4::{prelude::*, Notebook};
+use gtk4::prelude::*;
 //use std::borrow::Borrow;
 //use once_cell::sync::Lazy;
 use std::cell::RefCell;
 use std::rc::Rc;
 //use std::sync::Mutex;
-use steinsgate::gatewidgets::*;
-
+use steinsgate::gatewidgetpatterns::*;
+use steinsgate::gatewidgets::{GatePopWindow, PopUpWindow};
 mod popuppage;
 type Message = Rc<RefCell<(String, bool, i32)>>;
-pub fn todo_page(overlay: Rc<Notebook>) -> Rc<gtk4::Box> {
-    let containermax = GateBox {
+pub fn todo_page(overlay: Rc<GatePopWindow>) -> Rc<gtk4::Box> {
+    let containermax = GateBoxPattern {
         halign: gtk4::Align::Fill,
         valign: gtk4::Align::Fill,
         ..Default::default()
     }
     .prebuild()
     .build();
-    let basebox = GateBox {
+    let basebox = GateBoxPattern {
         halign: gtk4::Align::Baseline,
         valign: gtk4::Align::Fill,
         margin_end: 15,
@@ -26,7 +26,7 @@ pub fn todo_page(overlay: Rc<Notebook>) -> Rc<gtk4::Box> {
         margin_bottom: 15,
         ..Default::default()
     };
-    let topcontainer = GateBox {
+    let topcontainer = GateBoxPattern {
         orientation: gtk4::Orientation::Horizontal,
         ..basebox
     }
@@ -34,7 +34,7 @@ pub fn todo_page(overlay: Rc<Notebook>) -> Rc<gtk4::Box> {
     .hexpand(true)
     .build();
     let container = basebox.prebuild().build();
-    let scrolled_window = GateScrolledWindow::default()
+    let scrolled_window = GateScrolledWindowPattern::default()
         .prebuild()
         .child(&container)
         .build();
@@ -61,7 +61,7 @@ pub fn todo_page(overlay: Rc<Notebook>) -> Rc<gtk4::Box> {
         containerrc.append(&*to_do_row(overlay.clone(), astate));
     });
 
-    let cleanbutton = GateButton::default()
+    let cleanbutton = GateButtonPattern::default()
         .prebuild()
         .build()
         .set_onclick(move |_| {
@@ -95,10 +95,10 @@ pub fn todo_page(overlay: Rc<Notebook>) -> Rc<gtk4::Box> {
     containermax.append(&scrolled_window);
     Rc::new(containermax)
 }
-fn to_do_row(overlay: Rc<Notebook>, state: Message) -> Rc<gtk4::Box> {
+fn to_do_row(overlay: Rc<GatePopWindow>, state: Message) -> Rc<gtk4::Box> {
     let input2 = state.borrow();
     let (input, _, time) = input2.clone();
-    let thebox = GateBox {
+    let thebox = GateBoxPattern {
         orientation: gtk4::Orientation::Horizontal,
         valign: gtk4::Align::Start,
         halign: gtk4::Align::Start,
@@ -108,7 +108,7 @@ fn to_do_row(overlay: Rc<Notebook>, state: Message) -> Rc<gtk4::Box> {
     .build();
     let fontsize = 30111;
     //let check = RefCell::new(false);
-    let labelprew = GateLabel {
+    let labelprew = GateLabelPattern {
         margin_end: 12,
         margin_top: 12,
         margin_start: 12,
@@ -118,7 +118,7 @@ fn to_do_row(overlay: Rc<Notebook>, state: Message) -> Rc<gtk4::Box> {
     };
     drop(input2);
     let lable = labelprew.prebuild().build();
-    let recordlabel = GateLabel {
+    let recordlabel = GateLabelPattern {
         text: &time.to_string(),
         ..labelprew
     }
@@ -128,7 +128,7 @@ fn to_do_row(overlay: Rc<Notebook>, state: Message) -> Rc<gtk4::Box> {
     let recordlabel = updatelabel.clone();
     let time2 = state.clone();
     let check_button = gtk4::CheckButton::builder().build();
-    let popupbutton = GateButton {
+    let popupbutton = GateButtonPattern {
         text: "Popup",
         margin_start: 15,
         margin_end: 15,
@@ -138,15 +138,12 @@ fn to_do_row(overlay: Rc<Notebook>, state: Message) -> Rc<gtk4::Box> {
     .prebuild()
     .build()
     .set_onclick(move |_| {
-        overlay.append_page(
-            &*popuppage::popup_page(
-                time2.clone(),
-                overlay.clone(),
-                updatelabel.clone(),
-                fontsize,
-            ),
-            Some(&GateLabel::default().prebuild().build()),
-        );
+        overlay.popup(&*popuppage::popup_page(
+            time2.clone(),
+            overlay.clone(),
+            updatelabel.clone(),
+            fontsize,
+        ));
         overlay.set_page(1);
     });
     thebox.append(&check_button);

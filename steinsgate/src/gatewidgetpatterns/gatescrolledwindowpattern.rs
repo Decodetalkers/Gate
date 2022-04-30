@@ -1,9 +1,9 @@
-use super::GateWidget;
+use super::GateWidgetPattern;
 use gtk4::builders::ScrolledWindowBuilder;
 use gtk4::Align;
 use gtk4::PolicyType;
 use gtk4::ScrolledWindow;
-pub struct GateScrolledWindow {
+pub struct GateScrolledWindowPattern {
     pub vexpand: bool,
     pub min_content_width: i32,
     pub halign: Align,
@@ -15,9 +15,9 @@ pub struct GateScrolledWindow {
     pub margin_top: i32,
     pub margin_bottom: i32,
 }
-impl Default for GateScrolledWindow {
+impl Default for GateScrolledWindowPattern {
     fn default() -> Self {
-        GateScrolledWindow {
+        GateScrolledWindowPattern {
             vexpand: true,
             min_content_width: 360,
             halign: Align::Fill,
@@ -31,7 +31,7 @@ impl Default for GateScrolledWindow {
         }
     }
 }
-impl GateWidget<ScrolledWindowBuilder> for GateScrolledWindow {
+impl GateWidgetPattern<ScrolledWindowBuilder> for GateScrolledWindowPattern {
     fn prebuild(&self) -> ScrolledWindowBuilder {
         ScrolledWindow::builder()
             .vexpand(true)
